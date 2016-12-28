@@ -1,7 +1,8 @@
+var tubes = [];
 var markers = [];
-var autoLoad = false;
 
 $(function () {
+    var map;
 
     console.log('hi!');
     function initMap(location) {
@@ -13,7 +14,7 @@ $(function () {
 	    panControl: false,
 	    mapTypeId: google.maps.MapTypeId.ROADMAP
 	}
-	var map = new google.maps.Map(mapCanvas, mapOptions);
+	map = new google.maps.Map(mapCanvas, mapOptions);
 
 	map.data.loadGeoJson('/static/zones.json');
 	map.data.setStyle(function(feature) {
@@ -179,7 +180,31 @@ markers.push(marker);*/
 		console.log(loc.val());
 
     });
+	
+	$('#toggle-tube').on('click', function(event){
+	  if (tubes.length == 0) {
+		loadTubes(map);
+	  } else {
+		while(marker = tubes.pop()) {
+		  marker.setMap(null);
+		}
+	  }
+	});
 });
+
+function loadTubes(map) {
+    $.get( "tubes", {
+    }, function(results) {
+	  results.forEach(function(res){
+		  var location = new google.maps.LatLng(res.latitude, res.longitude);
+		  var marker = new google.maps.Marker({
+			  position: location,
+			  map: map
+		  });
+		  tubes.push(marker);
+	  });
+	}, "json");
+}
 
 function loadProperties(data, map) {
 
