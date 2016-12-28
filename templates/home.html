@@ -1,0 +1,40 @@
+<html>
+    <head>
+        <title>Map</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <script type="text/javascript" src="/static/map.js"></script>
+<style>
+
+.box{
+    border: 1px solid grey;
+    padding: 5px;
+}
+</style>
+    </head>
+    <body>
+
+	<div style="position: relative;">
+	    <div id="map" style="width: 100%; height: 100%;">
+
+	    </div>
+
+	    <div style="position: absolute;top: 10px;right: 10px; z-index: 5;background-color: #fff; border: 1px solid grey; padding: 10px;">
+	    <form>
+	    Location: <input id="pac-input" type="search" name="location" class="box" /><br />
+	    Travel time: <input id="max-time" type="number" min="10" max="120" step="5" name="max-time" class="box" value="55" />min<br />
+	    <hr />
+	    Min: <input id="min-price" name="min-price" class="box" value="500000" type="number" min="100000" max="1000000" step="10000" /><br/>
+	    Max: <input id="max-price" name="max-price" class="box" value="600000" type="number" min="100000" max="1000000" step="10000"  /><br />
+	    Beds <input id="min-bed" type="number" min="1" max="5" name="min-bed" class="box" value="2" /><br />
+	    Baths: <input id="min-bath" type="number" min="1" max="5" name="min-bath" class="box" value="2" /><br />
+	    Source: <select id="source" name="source"><option value="trovit">Trovit</option><option value="zoopla">Zoopla</option></select><br />
+	    <label>Auto-Load: <input type="checkbox" name="auto-load" id="auto-load" /></label>
+	    <!--<input type="submit" name="search" value="Search" />-->
+	    </form>
+	    </div>
+	</div>
+    </body>
+</html>
