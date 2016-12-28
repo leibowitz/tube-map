@@ -1,8 +1,6 @@
 # for zoopla (run.py)
 requests
 requests-cache
-# for plotting on a google map html page
-gmplot
 # for tornado server (server.py)
 tornado
 # for Neo4j
