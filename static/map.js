@@ -15,6 +15,16 @@ $(function () {
 	}
 	var map = new google.maps.Map(mapCanvas, mapOptions);
 
+	map.data.loadGeoJson('/static/zones.json');
+	map.data.setStyle(function(feature) {
+	  return /** @type {google.maps.Data.StyleOptions} */({
+		cursor: 'auto',
+		fillColor: feature.getProperty('fill'),
+		strokeColor: feature.getProperty('stroke'),
+		strokeWeight: feature.getProperty('stroke-width')
+	  });
+	});
+
 	/*var markerImage = 'marker.png';
 
 	  var marker = new google.maps.Marker({
