@@ -201,6 +201,15 @@ function loadTubes(map) {
 			  position: location,
 			  map: map
 		  });
+		  var icon = '/static/tube_small.png';
+
+		  marker.setIcon({
+			  url: icon,
+			  scaledSize: new google.maps.Size(25, 20),
+			  size: new google.maps.Size(100, 80),
+			  anchor: new google.maps.Point(12, 10)
+		  });
+
 		  tubes.push(marker);
 	  });
 	}, "json");
