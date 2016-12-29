@@ -1,6 +1,8 @@
 var tubes = [];
+var lines = [];
 var markers = [];
 var tubeDisplayed = false;
+var lineDisplayed = false;
 
 $(function () {
     var map;
@@ -188,6 +190,17 @@ markers.push(marker);*/
 		}
 	  }
 	});
+	$('#toggle-line').on('click', function(event){
+	  if (lines.length == 0) {
+		loadLines(map);
+	  } else {
+		if (lineDisplayed) {
+		  hideLines();
+		} else {
+		  showLines(map);
+		}
+	  }
+	});
 });
 
 function loadTubes(map) {
@@ -275,17 +288,65 @@ function loadProperties(data, map) {
     }, "json");
 }
 
+function loadLines(map) {
+    $.get( "lines", {
+    }, function(results) {
+	  Object.keys(results).forEach(function(line) {
+	    Object.keys(results[line]['directions']).forEach(function(direction) {
+	    Object.keys(results[line]['directions'][direction]).forEach(function(link) {
+		  var pathCoordinates = [
+		    {
+		    lat: results[line]['directions'][direction][link]['from']['lat'],
+		    lng: results[line]['directions'][direction][link]['from']['lng']
+		    },
+		    {
+		    lat: results[line]['directions'][direction][link]['to']['lat'],
+		    lng: results[line]['directions'][direction][link]['to']['lng']
+		    }
+		  ];
+		  var path = new google.maps.Polyline({
+			path: pathCoordinates,
+			geodesic: true,
+			strokeColor: results[line]['color'],
+			strokeOpacity: 1.0,
+			strokeWeight: 2
+		  });
+
+		  path.setMap(map);
+
+		  lines.push(path);
+	});
+	});
+      });
+	  lineDisplayed = true;
+	}, "json");
+}
+
 function hideTubes() {
   tubes.forEach(function(marker) {
-	marker.setMap(null);
+    marker.setMap(null);
   });
   tubeDisplayed = false;
 }
 
 function showTubes(map) {
   tubes.forEach(function(marker) {
-		marker.setMap(map);
+    marker.setMap(map);
   });
   tubeDisplayed = true;
+}
+
+function hideLines() {
+  lines.forEach(function(marker) {
+    marker.setMap(null);
+  });
+  lineDisplayed = false;
+}
+
+function showLines(map) {
+  lines.forEach(function(marker) {
+    marker.setMap(map);
+  });
+  lineDisplayed = true;
 }
 
