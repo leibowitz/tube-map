@@ -1,5 +1,6 @@
 var tubes = [];
 var markers = [];
+var tubeDisplayed = false;
 
 $(function () {
     var map;
@@ -185,8 +186,10 @@ markers.push(marker);*/
 	  if (tubes.length == 0) {
 		loadTubes(map);
 	  } else {
-		while(marker = tubes.pop()) {
-		  marker.setMap(null);
+		if (tubeDisplayed) {
+		  hideTubes();
+		} else {
+		  showTubes(map);
 		}
 	  }
 	});
@@ -212,6 +215,7 @@ function loadTubes(map) {
 
 		  tubes.push(marker);
 	  });
+	  tubeDisplayed = true;
 	}, "json");
 }
 
@@ -274,3 +278,18 @@ function loadProperties(data, map) {
 	});
     }, "json");
 }
+
+function hideTubes() {
+  tubes.forEach(function(marker) {
+	marker.setMap(null);
+  });
+  tubeDisplayed = false;
+}
+
+function showTubes(map) {
+  tubes.forEach(function(marker) {
+		marker.setMap(map);
+  });
+  tubeDisplayed = true;
+}
+
