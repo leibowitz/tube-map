@@ -147,8 +147,9 @@ markers.push(marker);*/
 
 		}, "json");
 
+		var previousZoom = map.getZoom();
 		map.fitBounds(bounds);
-		map.setZoom(12);
+		map.setZoom(previousZoom);
 	    });
 	});
 
