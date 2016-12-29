@@ -5,7 +5,6 @@ var tubeDisplayed = false;
 $(function () {
     var map;
 
-    console.log('hi!');
     function initMap(location) {
 
 	var mapCanvas = document.getElementById('map');
@@ -109,14 +108,12 @@ position: place.geometry.location
 		var max_time = $('#max-time').val();
 
 		var auto_load = $('#auto-load').is(':checked');
-		console.log(auto_load);
 		$.get( "request", {
 		    latitude: place.geometry.location.lat(), 
 		    longitude: place.geometry.location.lng(), 
 		    max_time: max_time * 60
 		}, function(results) {
 		    results.forEach(function(res){
-			console.log(res.latitude, res.longitude);
 
 			var location = new google.maps.LatLng(res.latitude, res.longitude);
 			/*var marker = new google.maps.Marker({
@@ -125,7 +122,6 @@ map: map
 });
 
 markers.push(marker);*/
-			console.log(res.distance);
 			var circle = new google.maps.Circle({
 			    strokeColor: '#FF0000',
 			    strokeOpacity: 0.8,
@@ -136,7 +132,6 @@ markers.push(marker);*/
 			    center: {lat: res.latitude, lng: res.longitude},
 			    radius: res.distance * 1000
 			});
-			console.log(circle);
 			markers.push(circle);
 
 			if (auto_load) {
@@ -154,12 +149,11 @@ markers.push(marker);*/
 		map.setZoom(12);
 	    });
 	});
+
     }
 
-    //console.log(google);
     $(document).ready(function(event) {
 	//google.maps.event.addDomListener(window, 'domready', function(event){
-	console.log('loaded', event);
 
 	var location = new google.maps.LatLng(51.5098444,-0.143116);
 	initMap(location);
@@ -176,9 +170,7 @@ markers.push(marker);*/
 
     $('form').on('submit', function(event){
 		event.preventDefault();
-		console.log(event);
 		loc = $(this).find('[name=location]');
-		console.log(loc.val());
 
     });
 	
@@ -239,7 +231,6 @@ function loadProperties(data, map) {
 		radius: data.radius
     }, function(results) {
 	results.forEach(function(res){
-	    console.log(res);
 	    var location = new google.maps.LatLng(res.latitude, res.longitude);
 	    var marker = new google.maps.Marker({
 			position: location,
