@@ -11,8 +11,6 @@ class TubesHandler(tornado.web.RequestHandler):
     def get(self):
         if 'X-Requested-With' not in self.request.headers or self.request.headers['X-Requested-With'] != "XMLHttpRequest":
             return
-        latitude = float(self.get_argument('latitude', 0))
-        longitude = float(self.get_argument('longitude', 0))
         results = []
         for record in graph.run("""
                 // get all tube stations
