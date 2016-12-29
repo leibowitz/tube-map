@@ -20,6 +20,7 @@ $(function () {
 	map.data.setStyle(function(feature) {
 	  return /** @type {google.maps.Data.StyleOptions} */({
 		cursor: 'auto',
+		zIndex: 0,
 		fillColor: feature.getProperty('fill'),
 		strokeColor: feature.getProperty('stroke'),
 		strokeWeight: feature.getProperty('stroke-width')
@@ -129,6 +130,7 @@ markers.push(marker);*/
 			    fillColor: '#FF0000',
 			    fillOpacity: 0.05,
 			    map: map,
+			    zIndex: 1,
 			    center: {lat: res.latitude, lng: res.longitude},
 			    radius: res.distance * 1000
 			});
@@ -193,6 +195,7 @@ function loadTubes(map) {
 	  results.forEach(function(res){
 		  var location = new google.maps.LatLng(res.latitude, res.longitude);
 		  var marker = new google.maps.Marker({
+			  zIndex: 2,
 			  position: location,
 			  map: map
 		  });
@@ -233,6 +236,7 @@ function loadProperties(data, map) {
 	results.forEach(function(res){
 	    var location = new google.maps.LatLng(res.latitude, res.longitude);
 	    var marker = new google.maps.Marker({
+			zIndex: 10,
 			position: location,
 			map: map
 	    });
