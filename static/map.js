@@ -112,10 +112,20 @@ position: place.geometry.location
 
 		var auto_load = $('#auto-load').is(':checked');
 		$.get( "request", {
-		    latitude: place.geometry.location.lat(), 
-		    longitude: place.geometry.location.lng(), 
+		    latitude: place.geometry.location.lat(),
+		    longitude: place.geometry.location.lng(),
 		    max_time: max_time * 60
 		}, function(results) {
+		  var min_time = Infinity;
+		  var max_time = 0;
+		    results.forEach(function(res){
+		      if (res.time < min_time) {
+			min_time = res.time;
+		      }
+		      if (res.time > max_time) {
+			max_time = res.time;
+		      }
+		    });
 		    results.forEach(function(res){
 
 			var location = new google.maps.LatLng(res.latitude, res.longitude);
@@ -125,11 +135,13 @@ map: map
 });
 
 markers.push(marker);*/
+var pcColor = (res.time - min_time) / (max_time - min_time);
+var color = "RGB(" + parseInt(158 * pcColor + 255 * (1 - pcColor)) + ", " + parseInt(0 * pcColor + 139 * (1 - pcColor)) + ", " + parseInt(0 * pcColor + 124 * (1 - pcColor)) + ")";
 			var circle = new google.maps.Circle({
-			    strokeColor: '#FF0000',
+			    strokeColor: color,
 			    strokeOpacity: 0.8,
 			    strokeWeight: 2,
-			    fillColor: '#FF0000',
+			    fillColor: color,
 			    fillOpacity: 0.05,
 			    map: map,
 			    zIndex: 1,

@@ -40,7 +40,7 @@ class RequestHandler(tornado.web.RequestHandler):
                 max_walk_time = max_time - record['time']
                 distance_walk_km = max_walk_time / 600 # in km
                 distance_walk_miles = distance_walk_km / 1.6
-                results.append({"name": record['end']['name'], "distance": distance_walk_miles, "latitude": record['end']['latitude'], "longitude": record['end']['longitude']})
+                results.append({"name": record['end']['name'], "distance": distance_walk_miles, "latitude": record['end']['latitude'], "longitude": record['end']['longitude'], "time": record['time']})
 
         self.write(json.dumps(results))
         self.finish()
