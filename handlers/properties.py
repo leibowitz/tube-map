@@ -9,6 +9,24 @@ import requests
 api = zoopla.api(version=1, api_key='API_KEY')
 proxies={'http': 'http://127.0.0.1:8989'}
 
+def list_properties_nestoria(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price, max_price):
+    (lat_min, lon_min, lat_max, lon_max) = boundingBox(latitude, longitude, radius)
+    payload = {
+            'action': 'search_listings',
+            'encoding': 'json',
+            'south_west': '%f,%f' % (lat_min, lon_min),
+            'north_east': '%f,%f' % (lat_max, lon_max),
+            'bedroom_min': min_bedrooms,
+            'bathroom_min': min_bathrooms,
+            'listing_type': 'buy',
+            'price_min': min_price,
+            'price_max': max_price
+    }
+    r = requests.get('http://api.nestoria.co.uk/api', params=payload)
+    for listing in r.json()["response"]["listings"]:
+        yield {"latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing['price']), "url": listing['lister_url'], "description": listing['summary'], "address": listing['title'], "image": listing['thumb_url'], "floor_plans": [], "new_home": False}
+
+
 def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price, max_price):
     headers = {'x-client-id': 'CLIENT_ID'}
     #print(latitude, longitude, radius)
@@ -87,6 +105,8 @@ class PropertiesHandler(tornado.web.RequestHandler):
         source = self.get_argument('source', 'trovit')
         if source == 'zoopla':
             func = list_properties_zoopla
+        elif source == 'nestoria':
+            func = list_properties_nestoria
         else:
             func = list_properties_trovit
 
