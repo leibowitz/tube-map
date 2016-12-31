@@ -31,6 +31,35 @@ def list_properties_nestoria(latitude, longitude, radius, min_bedrooms, min_bath
     for listing in r.json()["response"]["listings"]:
         yield {"latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing['price']), "url": listing['lister_url'], "description": listing['summary'], "address": listing['title'], "image": listing['thumb_url'], "floor_plans": [], "new_home": False}
 
+def list_properties_smartnewhomes(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price=0, max_price=0):
+    (lat_min, lon_min, lat_max, lon_max) = boundingBox(latitude, longitude, radius)
+    box = [(lat_min, lon_min), (lat_min, lon_max), (lat_max, lon_max), (lat_max, lon_min), (lat_min, lon_min)]
+    new_home = True
+    payload = {
+            'beds_min': min_bedrooms,
+            'category': 'residential',
+            'include_retirement_homes': 'false',
+            'include_shared_ownership': 'true',
+            'new_homes': 'include',
+            'q': '',
+            'polyenc': [polyline.encode(box)]
+    }
+
+    if min_price:
+            payload['price_min'] = min_price
+    if max_price:
+            payload['price_max'] = max_price
+
+    if new_home:
+        payload['section'] = "new-homes"
+
+    headers = {'X-Requested-With': 'XMLHttpRequest'}
+    r = requests.post('http://www.smartnewhomes.com/ajax/maps/listings', headers=headers, data=payload)
+    properties = {}
+    for listing in r.json()["listings"]:
+        properties[ listing["listing_id"] ] = {"latitude": listing["lat"], "longitude": listing["lon"]}
+        url = "http://www.smartnewhomes.com/new-homes/details/" + listing["listing_id"]
+        yield {"id": listing["listing_id"], "latitude": listing["lat"], "longitude": listing["lon"], "url": url}
 
 def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price=0, max_price=0):
     headers = {'x-client-id': 'CLIENT_ID'}
@@ -152,6 +181,8 @@ class PropertiesHandler(tornado.web.RequestHandler):
             func = list_properties_nestoria
         elif source == 'rightmove':
             func = list_properties_rightmove
+        elif source == 'smartnewhomes':
+            func = list_properties_smartnewhomes
         else:
             func = list_properties_trovit
 
