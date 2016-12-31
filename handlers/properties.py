@@ -56,10 +56,25 @@ def list_properties_smartnewhomes(latitude, longitude, radius, min_bedrooms, min
     headers = {'X-Requested-With': 'XMLHttpRequest'}
     r = requests.post('http://www.smartnewhomes.com/ajax/maps/listings', headers=headers, data=payload)
     properties = {}
+    params = [
+            ('api_key', 'API_KEY')
+    ]
     for listing in r.json()["listings"]:
         properties[ listing["listing_id"] ] = {"latitude": listing["lat"], "longitude": listing["lon"]}
         url = "http://www.smartnewhomes.com/new-homes/details/" + listing["listing_id"]
-        yield {"id": listing["listing_id"], "latitude": listing["lat"], "longitude": listing["lon"], "url": url}
+        url = "http://www.zoopla.co.uk/for-sale/details/" + listing["listing_id"]
+        params.append(('listing_id', listing["listing_id"]))
+
+    if len(params) != 1:
+        r = requests.get('http://api.zoopla.co.uk/api/v1/property_listings.json', params=params)
+        for listing in r.json()["listing"]:
+            bathrooms = int(listing["num_bathrooms"])
+            if bathrooms < min_bathrooms:
+                continue
+            new_home = True if "new_home" in listing and listing["new_home"] == "true" else False
+            u = urllib.parse.urlparse(listing["details_url"])
+            details_url = u._replace(query=None).geturl()
+            yield {"latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing["price"]), "id": listing["listing_id"], "url": details_url, "description": listing["short_description"], "address": listing["displayable_address"], "image": listing["thumbnail_url"], "floor_plans": listing["floor_plan"] if 'floor_plan' in listing else [], "new_home": new_home}
 
 def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price=0, max_price=0):
     headers = {'x-client-id': 'CLIENT_ID'}
