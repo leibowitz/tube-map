@@ -123,6 +123,8 @@ def list_properties_rightmove(latitude, longitude, radius, min_bedrooms, min_bat
     }
     if new_home:
         payload['channel'] = 'NEW_HOME'
+    else:
+        payload['channel'] = 'BUY'
 
     r = requests.get('http://www.rightmove.co.uk/api/_search', params=payload)
 
