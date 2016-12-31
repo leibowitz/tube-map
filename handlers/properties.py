@@ -30,8 +30,8 @@ def list_properties_nestoria(latitude, longitude, radius, min_bedrooms, min_bath
 
 def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price, max_price):
     headers = {'x-client-id': 'CLIENT_ID'}
-    #print(latitude, longitude, radius)
     (lat_min, lon_min, lat_max, lon_max) = boundingBox(latitude, longitude, (radius/1.6))
+    new_home = True
     payload = {
             'longitude_max': lon_max,
             'longitude_min': lon_min,
@@ -39,15 +39,17 @@ def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathro
             'latitude_min': lat_min,
             'rooms_min': min_bedrooms,
             'from': 'map',
-            'type': 1,
+            'type': 1, # 1 => home for sale, 2 => home for rent
             'bathrooms_min': min_bathrooms,
             'country': 'uk',
             'order': 'relevance',
             #'per_page': 50,
             'price_min': min_price,
-            #'new_homes': True,
             'price_max': max_price
     }
+    if new_home:
+        payload['new_homes'] = "true"
+
     r = requests.get('https://api.trovit.com:443/v2/homes/ads', headers=headers, params=payload)
     for listing in r.json()["ads"]:
         new_home = True if 'is_new' in listing and listing['is_new'] and listing['is_new'] == 1 else False
@@ -56,19 +58,22 @@ def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathro
 
 def list_properties_zoopla(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price, max_price):
 
-    for listing in api.property_listings(
-            #postcode=args.postcode,
-            latitude=latitude,
-            longitude=longitude,
-            radius=radius,
-            property_type='flats',
-            new_homes="yes",
-            minimum_price=min_price,
-            maximum_price=max_price,
-            minimum_beds=min_bedrooms,
-            listing_status='sale',
-            proxies=proxies,
-            max_results=10):
+    new_home = True
+    params = {
+            #'postcode': args.postcode,
+            'latitude': latitude,
+            'longitude': longitude,
+            'radius': radius,
+            'property_type': 'flats',
+            'minimum_price': min_price,
+            'maximum_price': max_price,
+            'minimum_beds': min_bedrooms,
+            'listing_status': 'sale',
+            'max_results': 10
+            }
+    if new_home:
+        params['new_homes'] = "yes"
+    for listing in api.property_listings(**params):
 
         bathrooms = int(listing.num_bathrooms)
         if bathrooms < min_bathrooms:
@@ -93,7 +98,7 @@ def list_properties_rightmove(latitude, longitude, radius, min_bedrooms, min_bat
     (lat_min, lon_min, lat_max, lon_max) = boundingBox(latitude, longitude, radius)
     box = [(lat_min, lon_min), (lat_min, lon_max), (lat_max, lon_max), (lat_max, lon_min), (lat_min, lon_min)]
 
-    new_home = False
+    new_home = True
     payload = {
     'auction': False,
     'searchType': 'SALE',
@@ -104,9 +109,9 @@ def list_properties_rightmove(latitude, longitude, radius, min_bedrooms, min_bat
     }
 
     if new_home:
-        payload['newHome'] = new_home
+        payload['newHome'] = "true"
 
-    r = requests.get('http://www.rightmove.co.uk/ajax/new-homes-for-sale/map-search.html', params=payload)
+    r = requests.get('http://www.rightmove.co.uk/ajax/property-for-sale/map-search.html', params=payload)
     properties = {}
     for listing in r.json()["mappedProperties"]:
         properties[ listing["id"] ] = {"latitude": listing["latLng"]["lat"], "longitude": listing["latLng"]["lng"]}
