@@ -50,7 +50,7 @@ def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathro
     if new_home:
         payload['new_homes'] = "true"
 
-    r = requests.get('https://api.trovit.com:443/v2/homes/ads', headers=headers, params=payload)
+    r = requests.get('http://api.trovit.com/v2/homes/ads', headers=headers, params=payload)
     for listing in r.json()["ads"]:
         new_home = True if 'is_new' in listing and listing['is_new'] and listing['is_new'] == 1 else False
         photo = listing['photos']["medium"]["url"] if 'photos' in listing else None
