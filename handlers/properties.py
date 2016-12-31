@@ -10,7 +10,7 @@ import requests
 api = zoopla.api(version=1, api_key='API_KEY')
 proxies={'http': 'http://127.0.0.1:8989'}
 
-def list_properties_nestoria(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price, max_price):
+def list_properties_nestoria(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price=0, max_price=0):
     (lat_min, lon_min, lat_max, lon_max) = boundingBox(latitude, longitude, radius)
     payload = {
             'action': 'search_listings',
@@ -19,16 +19,20 @@ def list_properties_nestoria(latitude, longitude, radius, min_bedrooms, min_bath
             'north_east': '%f,%f' % (lat_max, lon_max),
             'bedroom_min': min_bedrooms,
             'bathroom_min': min_bathrooms,
-            'listing_type': 'buy',
-            'price_min': min_price,
-            'price_max': max_price
+            'listing_type': 'buy'
     }
+
+    if min_price:
+            payload['price_min'] = min_price
+    if max_price:
+            payload['price_max'] = max_price
+
     r = requests.get('http://api.nestoria.co.uk/api', params=payload)
     for listing in r.json()["response"]["listings"]:
         yield {"latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing['price']), "url": listing['lister_url'], "description": listing['summary'], "address": listing['title'], "image": listing['thumb_url'], "floor_plans": [], "new_home": False}
 
 
-def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price, max_price):
+def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price=0, max_price=0):
     headers = {'x-client-id': 'CLIENT_ID'}
     (lat_min, lon_min, lat_max, lon_max) = boundingBox(latitude, longitude, (radius/1.6))
     new_home = True
@@ -42,11 +46,15 @@ def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathro
             'type': 1, # 1 => home for sale, 2 => home for rent
             'bathrooms_min': min_bathrooms,
             'country': 'uk',
-            'order': 'relevance',
+            'order': 'relevance'
             #'per_page': 50,
-            'price_min': min_price,
-            'price_max': max_price
     }
+
+    if min_price:
+            payload['price_min'] = min_price
+    if max_price:
+            payload['price_max'] = max_price
+
     if new_home:
         payload['new_homes'] = "true"
 
@@ -56,7 +64,7 @@ def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathro
         photo = listing['photos']["medium"]["url"] if 'photos' in listing else None
         yield {"latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing['price']), "id": listing['id'], "url": listing['url'], "description": listing['description'], "address": listing['title'], "image": photo, "floor_plans": listing['floor_plan'] if 'floor_plan' in listing and listing['floor_plan'] else [], "new_home": new_home}
 
-def list_properties_zoopla(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price, max_price):
+def list_properties_zoopla(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price=0, max_price=0):
 
     new_home = True
     params = {
@@ -65,12 +73,16 @@ def list_properties_zoopla(latitude, longitude, radius, min_bedrooms, min_bathro
             'longitude': longitude,
             'radius': radius,
             'property_type': 'flats',
-            'minimum_price': min_price,
-            'maximum_price': max_price,
             'minimum_beds': min_bedrooms,
             'listing_status': 'sale',
             'max_results': 10
             }
+
+    if min_price:
+            params['minimum_price'] = min_price
+    if max_price:
+            params['maximum_price'] = max_price
+
     if new_home:
         params['new_homes'] = "yes"
     for listing in api.property_listings(**params):
@@ -93,7 +105,7 @@ def list_properties_zoopla(latitude, longitude, radius, min_bedrooms, min_bathro
         details_url = u._replace(query=None).geturl()
         yield {"latitude": listing.latitude, "longitude": listing.longitude, "price": int(listing.price), "id": listing.listing_id, "url": details_url, "description": listing.short_description, "address": listing.displayable_address, "image": listing.thumbnail_url, "floor_plans": listing.floor_plan if listing.floor_plan else [], "new_home": new_home}
 
-def list_properties_rightmove(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price, max_price):
+def list_properties_rightmove(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price=0, max_price=0):
 
     (lat_min, lon_min, lat_max, lon_max) = boundingBox(latitude, longitude, radius)
     box = [(lat_min, lon_min), (lat_min, lon_max), (lat_max, lon_max), (lat_max, lon_min), (lat_min, lon_min)]
@@ -102,10 +114,13 @@ def list_properties_rightmove(latitude, longitude, radius, min_bedrooms, min_bat
     payload = {
     'apiApplication': 'ANDROID',
     'locationIdentifier': 'USERDEFINEDAREA^' + json.dumps({"polylines": polyline.encode(box)}),
-    'maxPrice': max_price,
-    'minPrice': min_price,
     'minBedrooms': min_bedrooms
     }
+
+    if max_price:
+        payload['maxPrice'] = max_price
+    if min_price:
+        payload['minPrice'] = min_price
 
     if new_home:
         payload['newHome'] = "true"
@@ -123,8 +138,10 @@ class PropertiesHandler(tornado.web.RequestHandler):
         latitude = float(self.get_argument('latitude', 0))
         longitude = float(self.get_argument('longitude', 0))
         radius = float(self.get_argument('radius', 0))
-        min_price = int(self.get_argument('min_price', 500000))
-        max_price = int(self.get_argument('max_price', 600000))
+        min_price = self.get_argument('min_price', 0)
+        max_price = self.get_argument('max_price', 0)
+        min_price = int(min_price) if min_price and min_price.isdigit() else 0
+        max_price = int(max_price) if max_price and max_price.isdigit() else 0
         min_bed = int(self.get_argument('min_bed', 2))
         min_bath = int(self.get_argument('min_bath', 2))
 
