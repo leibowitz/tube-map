@@ -5,3 +5,5 @@ requests-cache
 tornado
 # for Neo4j
 py2neo
+# for google polyline support (rightmove)
+polyline

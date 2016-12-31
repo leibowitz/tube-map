@@ -4,6 +4,7 @@ import json
 import zoopla
 import urllib.parse
 import math
+import polyline
 import requests
 
 api = zoopla.api(version=1, api_key='API_KEY')
@@ -87,6 +88,48 @@ def list_properties_zoopla(latitude, longitude, radius, min_bedrooms, min_bathro
         details_url = u._replace(query=None).geturl()
         yield {"latitude": listing.latitude, "longitude": listing.longitude, "price": int(listing.price), "id": listing.listing_id, "url": details_url, "description": listing.short_description, "address": listing.displayable_address, "image": listing.thumbnail_url, "floor_plans": listing.floor_plan if listing.floor_plan else [], "new_home": new_home}
 
+def list_properties_rightmove(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price, max_price):
+
+    (lat_min, lon_min, lat_max, lon_max) = boundingBox(latitude, longitude, radius)
+    box = [(lat_min, lon_min), (lat_min, lon_max), (lat_max, lon_max), (lat_max, lon_min), (lat_min, lon_min)]
+
+    new_home = False
+    payload = {
+    'auction': False,
+    'searchType': 'SALE',
+    'locationIdentifier': 'USERDEFINEDAREA^' + json.dumps({"polylines": polyline.encode(box)}),
+    'maxPrice': max_price,
+    'minPrice': min_price,
+    'minBedrooms': min_bedrooms
+    }
+
+    if new_home:
+        payload['newHome'] = new_home
+
+    r = requests.get('http://www.rightmove.co.uk/ajax/new-homes-for-sale/map-search.html', params=payload)
+    properties = {}
+    for listing in r.json()["mappedProperties"]:
+        properties[ listing["id"] ] = {"latitude": listing["latLng"]["lat"], "longitude": listing["latLng"]["lng"]}
+
+    payload = {
+    'includeSSTC': False,
+    'viewType': 'LIST',
+    'dontShow': 'retirement',
+    'locationIdentifier': 'USERDEFINEDAREA^' + json.dumps({"polylines": polyline.encode(box)}),
+    'maxPrice': max_price,
+    'minPrice': min_price,
+    'minBedrooms': min_bedrooms,
+    'radius': (radius/1.6)
+    }
+    if new_home:
+        payload['channel'] = 'NEW_HOME'
+
+    r = requests.get('http://www.rightmove.co.uk/api/_search', params=payload)
+
+    for listing in r.json()["properties"]:
+        if listing['id'] not in properties:
+            continue
+        yield {"id": listing["id"], "latitude": properties[listing['id']]['latitude'], "longitude": properties[listing['id']]['longitude'], "price": int(listing['price']['amount']), "url": "http://www.rightmove.co.uk" + listing['propertyUrl'], "description": listing['summary'], "address": listing['displayAddress'], "image": listing['mainImageSrc'], "floor_plans": [], "new_home": new_home}
 
 class PropertiesHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
@@ -107,6 +150,8 @@ class PropertiesHandler(tornado.web.RequestHandler):
             func = list_properties_zoopla
         elif source == 'nestoria':
             func = list_properties_nestoria
+        elif source == 'rightmove':
+            func = list_properties_rightmove
         else:
             func = list_properties_trovit
 
