@@ -34,13 +34,13 @@ class RequestHandler(tornado.web.RequestHandler):
                 AND totaltime < %d // maximum {max_total_time} min
                 AND filter(x IN end.zones WHERE %s) // in zone [{zones}]
                 // To get only end stations and average total time, use this
-                RETURN distinct end, avg(totaltime) as time
+                RETURN distinct end, avg(totaltime) as time, id(end) as nodeid
                 ORDER BY time
                 """ % (latitude, longitude, radius, max_total_time, where_zones)):
                 max_walk_time = max_time - record['time']
                 distance_walk_km = max_walk_time / 600 # in km
                 distance_walk_miles = distance_walk_km / 1.6
-                results.append({"name": record['end']['name'], "distance": distance_walk_miles, "latitude": record['end']['latitude'], "longitude": record['end']['longitude'], "time": record['time']})
+                results.append({"name": record['end']['name'], "distance": distance_walk_miles, "latitude": record['end']['latitude'], "longitude": record['end']['longitude'], "time": record['time'], "id": record['nodeid']})
 
         self.write(json.dumps(results))
         self.finish()

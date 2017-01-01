@@ -1,6 +1,7 @@
 var tubes = [];
 var lines = [];
 var markers = [];
+var infowindows = [];
 var zones = [];
 var tubeDisplayed = false;
 var lineDisplayed = false;
@@ -144,7 +145,9 @@ position: place.geometry.location
 		loc = $(this).find('[name=location]');
 
     });
-	
+	$('#show-circles').on('click', function(event){
+	    showAllCircles()
+	});
 	$('#toggle-tube').on('click', function(event){
 	  if (tubes.length == 0) {
 		loadTubes(map);
@@ -421,7 +424,23 @@ markers.push(marker);*/
       center: {lat: res.latitude, lng: res.longitude},
       radius: res.distance * 1000
     });
+    circle.set('id', res.id);
     markers.push(circle);
+    var infowindow = new google.maps.InfoWindow({
+      content: '<div class="info-window">'+
+	'Tube: '+res.name+'<br />'+
+	'Time: '+moment.duration(res.time, 'seconds').humanize()+'<br />'+
+	'Radius: '+parseInt(res.distance*1000).toString()+'m<br />'+
+	'<button onclick="hideCircle(event, '+circle.get('id')+')">Delete</button><br />'+
+	'</div>',
+	position: location,
+	maxWidth: 400
+    });
+    infowindow.set('id', res.id);
+    infowindows.push(infowindow);
+    circle.addListener('rightclick', function (event) {
+	infowindow.open(circle.get('map'), circle);
+    });
 
     var auto_load = $('#auto-load').is(':checked');
     if (auto_load) {
@@ -433,3 +452,24 @@ markers.push(marker);*/
     }
   });
 }
+
+function hideCircle(event, nodeid) {
+    event.stopPropagation();
+    markers.forEach(function(circle){
+	if (circle.get('id') == nodeid) {
+	    circle.setVisible(false);
+	}
+    });
+    infowindows.forEach(function(infowindow){
+	if (infowindow.get('id') == nodeid) {
+	    infowindow.close();
+	}
+    });
+}
+
+function showAllCircles() {
+    markers.forEach(function(circle){
+	circle.setVisible(true);
+    });
+}
+
