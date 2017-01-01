@@ -9,9 +9,12 @@ import requests
 
 trovit_client_id = 'CLIENT_ID'
 zoopla_key = 'API_KEY'
+proxies={}
+use_proxy = False
+if use_proxy:
+    proxies['http'] = 'http://127.0.0.1:8989'
 
 api = zoopla.api(version=1, api_key=zoopla_key)
-proxies={'http': 'http://127.0.0.1:8989'}
 
 def list_properties_nestoria(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price=0, max_price=0):
     (lat_min, lon_min, lat_max, lon_max) = boundingBox(latitude, longitude, radius)
@@ -30,7 +33,7 @@ def list_properties_nestoria(latitude, longitude, radius, min_bedrooms, min_bath
     if max_price:
             payload['price_max'] = max_price
 
-    r = requests.get('http://api.nestoria.co.uk/api', params=payload)
+    r = requests.get('http://api.nestoria.co.uk/api', params=payload, proxies=proxies)
     for listing in r.json()["response"]["listings"]:
         yield {"latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing['price']), "url": listing['lister_url'], "description": listing['summary'], "address": listing['title'], "image": listing['thumb_url'], "floor_plans": [], "new_home": False}
 
@@ -57,7 +60,7 @@ def list_properties_smartnewhomes(latitude, longitude, radius, min_bedrooms, min
         payload['section'] = "new-homes"
 
     headers = {'X-Requested-With': 'XMLHttpRequest'}
-    r = requests.post('http://www.smartnewhomes.com/ajax/maps/listings', headers=headers, data=payload)
+    r = requests.post('http://www.smartnewhomes.com/ajax/maps/listings', headers=headers, data=payload, proxies=proxies)
     properties = {}
     params = [
             ('api_key', zoopla_key)
@@ -69,7 +72,7 @@ def list_properties_smartnewhomes(latitude, longitude, radius, min_bedrooms, min
         params.append(('listing_id', listing["listing_id"]))
 
     if len(params) != 1:
-        r = requests.get('http://api.zoopla.co.uk/api/v1/property_listings.json', params=params)
+        r = requests.get('http://api.zoopla.co.uk/api/v1/property_listings.json', params=params, proxies=proxies)
         for listing in r.json()["listing"]:
             bathrooms = int(listing["num_bathrooms"])
             if bathrooms < min_bathrooms:
@@ -105,7 +108,7 @@ def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathro
     if new_home:
         payload['new_homes'] = "true"
 
-    r = requests.get('http://api.trovit.com/v2/homes/ads', headers=headers, params=payload)
+    r = requests.get('http://api.trovit.com/v2/homes/ads', headers=headers, params=payload, proxies=proxies)
     for listing in r.json()["ads"]:
         new_home = True if 'is_new' in listing and listing['is_new'] and listing['is_new'] == 1 else False
         photo = listing['photos']["medium"]["url"] if 'photos' in listing else None
@@ -122,6 +125,7 @@ def list_properties_zoopla(latitude, longitude, radius, min_bedrooms, min_bathro
             'property_type': 'flats',
             'minimum_beds': min_bedrooms,
             'listing_status': 'sale',
+            'proxies': proxies,
             'max_results': 10
             }
 
@@ -172,7 +176,7 @@ def list_properties_rightmove(latitude, longitude, radius, min_bedrooms, min_bat
     if new_home:
         payload['newHome'] = "true"
 
-    r = requests.get('http://api.rightmove.co.uk/api/sale/find', params=payload)
+    r = requests.get('http://api.rightmove.co.uk/api/sale/find', params=payload, proxies=proxies)
     for listing in r.json()["properties"]:
         yield {"id": listing["identifier"], "latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing['price']), "url": "http://www.rightmove.co.uk/property-for-sale/property-%d.html" % (listing['identifier']), "description": listing['summary'], "address": listing['address'], "image": listing['photoThumbnailUrl'], "floor_plans": [], "new_home": new_home}
 
