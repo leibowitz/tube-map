@@ -7,7 +7,10 @@ import math
 import polyline
 import requests
 
-api = zoopla.api(version=1, api_key='API_KEY')
+trovit_client_id = 'CLIENT_ID'
+zoopla_key = 'API_KEY'
+
+api = zoopla.api(version=1, api_key=zoopla_key)
 proxies={'http': 'http://127.0.0.1:8989'}
 
 def list_properties_nestoria(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price=0, max_price=0):
@@ -57,7 +60,7 @@ def list_properties_smartnewhomes(latitude, longitude, radius, min_bedrooms, min
     r = requests.post('http://www.smartnewhomes.com/ajax/maps/listings', headers=headers, data=payload)
     properties = {}
     params = [
-            ('api_key', 'API_KEY')
+            ('api_key', zoopla_key)
     ]
     for listing in r.json()["listings"]:
         properties[ listing["listing_id"] ] = {"latitude": listing["lat"], "longitude": listing["lon"]}
@@ -77,7 +80,7 @@ def list_properties_smartnewhomes(latitude, longitude, radius, min_bedrooms, min
             yield {"latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing["price"]), "id": listing["listing_id"], "url": details_url, "description": listing["short_description"], "address": listing["displayable_address"], "image": listing["thumbnail_url"], "floor_plans": listing["floor_plan"] if 'floor_plan' in listing else [], "new_home": new_home}
 
 def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price=0, max_price=0):
-    headers = {'x-client-id': 'CLIENT_ID'}
+    headers = {'x-client-id': trovit_client_id}
     (lat_min, lon_min, lat_max, lon_max) = boundingBox(latitude, longitude, (radius/1.6))
     new_home = True
     payload = {
