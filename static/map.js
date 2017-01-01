@@ -267,7 +267,6 @@ function loadProperties(data, map) {
 			map: map
 	    });
 
-	    var price = Number(res.price).toLocaleString("en", {currency: "GBP", "style": "currency", "maximumFractionDigits": 0});
 	    var icon;
 	    if (res.new_home) {
 	      icon = '/static/pin/with-shadow/pin-dark-blue-th.png';
@@ -288,16 +287,37 @@ function loadProperties(data, map) {
 				floor_plans += '<a target="_blank" href="' + floor_plan + '">Plan</a><br/>';
 			});
 	    }
-	    var contentString = 
-		'<h3>' +
-		'<a target="_blank" href="' + res.url + '">' + res.address + '</a>' +
-		'</h3>' +
-		'<div>' +
-		'<img style="float: left; padding: 5px;" src="'+res.image+'" />' +
-		'<b>' + price + '</b><br />' +
-		floor_plans + " " +
-		res.description +
-		'</div>';
+	    var price = '';
+	    if (res.price) {
+	      price = Number(res.price).toLocaleString("en", {currency: "GBP", "style": "currency", "maximumFractionDigits": 0});
+	    }
+	    
+	    var name = '';
+	    if (res.address) {
+	      name = res.address;
+	    }
+	    else {
+	      name = res.id;
+	    }
+	    var contentString = '<h3>' +
+		'<a target="_blank" href="' + res.url + '">' + name + '</a>' +
+		'</h3>';
+
+	    contentString += '<div>';
+
+	    if (res.image) {
+		contentString += '<img style="float: left; padding: 5px;" src="'+res.image+'" />';
+	    }
+	    if (price) {
+		contentString += '<b>' + price + '</b><br />';
+	    }
+	    if (floor_plans) {
+		contentString += floor_plans + " ";
+	    }
+	    if (res.description) {
+	        contentString += res.description;
+	    }
+	    contentString += '</div>';
 
 	    var infowindow = new google.maps.InfoWindow({
 		content: contentString,
