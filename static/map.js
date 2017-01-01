@@ -268,6 +268,19 @@ function loadProperties(data, map) {
 	    });
 
 	    var price = Number(res.price).toLocaleString("en", {currency: "GBP", "style": "currency", "maximumFractionDigits": 0});
+	    var icon;
+	    if (res.new_home) {
+	      icon = '/static/pin/with-shadow/pin-dark-blue-th.png';
+	    } else {
+	      icon = '/static/pin/with-shadow/pin-laranja-th.png';
+	    }
+
+	    marker.setIcon({
+	      url: icon,
+	      scaledSize: new google.maps.Size(50, 40),
+	      size: new google.maps.Size(100, 80),
+	      anchor: new google.maps.Point(12, 40)
+	    });
 
 	    var floor_plans = '';
 	    if (res.floor_plans != undefined) {
