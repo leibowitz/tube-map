@@ -71,10 +71,9 @@ infowindow.open(map, marker);
 	    }
 
 	    // Clear out the old markers.
-	    markers.forEach(function(marker) {
+	    while(marker = markers.pop()) {
 		marker.setMap(null);
-	    });
-	    markers = [];
+	    }
 
 	    // For each place, get the icon, name and location.
 	    var bounds = new google.maps.LatLngBounds();
