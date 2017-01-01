@@ -1,8 +1,10 @@
 var tubes = [];
 var lines = [];
 var markers = [];
+var zones = [];
 var tubeDisplayed = false;
 var lineDisplayed = false;
+var zoneDisplayed = false;
 
 $(function () {
     var map;
@@ -17,17 +19,6 @@ $(function () {
 	    mapTypeId: google.maps.MapTypeId.ROADMAP
 	}
 	map = new google.maps.Map(mapCanvas, mapOptions);
-
-	map.data.loadGeoJson('/static/zones.json');
-	map.data.setStyle(function(feature) {
-	  return /** @type {google.maps.Data.StyleOptions} */({
-		cursor: 'auto',
-		zIndex: 0,
-		fillColor: feature.getProperty('fill'),
-		strokeColor: feature.getProperty('stroke'),
-		strokeWeight: feature.getProperty('stroke-width')
-	  });
-	});
 
 	/*var markerImage = 'marker.png';
 
@@ -213,7 +204,36 @@ var color = "RGB(" + parseInt(158 * pcColor + 255 * (1 - pcColor)) + ", " + pars
 		}
 	  }
 	});
+	$('#toggle-zone').on('click', function(event){
+	  if (zones.length == 0) {
+		loadZones(map);
+	  } else {
+		if (zoneDisplayed) {
+		  hideZones(map);
+		} else {
+		  showZones(map);
+		}
+	  }
+	});
 });
+
+function loadZones(map) {
+    map.data.loadGeoJson('/static/zones.json', {}, function(features){
+	features.forEach(function(feature){
+	    zones.push(feature);
+	});
+	zoneDisplayed = true;
+    });
+    map.data.setStyle(function(feature) {
+	return ({
+	      cursor: 'auto',
+	      zIndex: 0,
+	      fillColor: feature.getProperty('fill'),
+	      strokeColor: feature.getProperty('stroke'),
+	      strokeWeight: feature.getProperty('stroke-width')
+	});
+    });
+}
 
 function loadTubes(map) {
     $.get( "tubes", {
@@ -395,3 +415,12 @@ function showLines(map) {
   lineDisplayed = true;
 }
 
+function hideZones(map) {
+  map.data.setMap(null);
+  zoneDisplayed = false;
+}
+
+function showZones(map) {
+  map.data.setMap(map);
+  zoneDisplayed = true;
+}
