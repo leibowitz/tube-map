@@ -44,6 +44,11 @@ marker.addListener('click', function () {
 infowindow.open(map, marker);
 });*/
 
+	var results = localStorage.getItem("circles");
+	if (results != undefined) {
+	    showCircles(JSON.parse(results), map);
+	}
+
 	var input = document.getElementById('pac-input');
 	var searchBox = new google.maps.places.SearchBox(input);
     //map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
@@ -101,55 +106,13 @@ position: place.geometry.location
 
 		var max_time = $('#max-time').val();
 
-		var auto_load = $('#auto-load').is(':checked');
 		$.get( "request", {
 		    latitude: place.geometry.location.lat(),
 		    longitude: place.geometry.location.lng(),
 		    max_time: max_time * 60
 		}, function(results) {
-		  var min_time = Infinity;
-		  var max_time = 0;
-		    results.forEach(function(res){
-		      if (res.time < min_time) {
-			min_time = res.time;
-		      }
-		      if (res.time > max_time) {
-			max_time = res.time;
-		      }
-		    });
-		    results.forEach(function(res){
-
-			var location = new google.maps.LatLng(res.latitude, res.longitude);
-			/*var marker = new google.maps.Marker({
-position: location,
-map: map
-});
-
-markers.push(marker);*/
-var pcColor = (res.time - min_time) / (max_time - min_time);
-var color = "RGB(" + parseInt(158 * pcColor + 255 * (1 - pcColor)) + ", " + parseInt(0 * pcColor + 139 * (1 - pcColor)) + ", " + parseInt(0 * pcColor + 124 * (1 - pcColor)) + ")";
-			var circle = new google.maps.Circle({
-			    strokeColor: color,
-			    strokeOpacity: 0.8,
-			    strokeWeight: 2,
-			    fillColor: color,
-			    fillOpacity: 0.05,
-			    map: map,
-			    zIndex: 1,
-			    center: {lat: res.latitude, lng: res.longitude},
-			    radius: res.distance * 1000
-			});
-			markers.push(circle);
-
-			if (auto_load) {
-			    loadProperties({latitude: circle.getCenter().lat(), longitude: circle.getCenter().lng(), radius: circle.getRadius() / 1000}, map);
-			} else {
-				circle.addListener('click', function (event) {
-					loadProperties({latitude: circle.getCenter().lat(), longitude: circle.getCenter().lng(), radius: circle.getRadius() / 1000}, map);
-				});
-			}
-		    });
-
+		  localStorage.setItem("circles", JSON.stringify(results));
+		  showCircles(results, map);
 		}, "json");
 
 		var previousZoom = map.getZoom();
@@ -423,4 +386,50 @@ function hideZones(map) {
 function showZones(map) {
   map.data.setMap(map);
   zoneDisplayed = true;
+}
+
+function showCircles(results, map) {
+  var min_time = Infinity;
+  var max_time = 0;
+  results.forEach(function(res){
+    if (res.time < min_time) {
+      min_time = res.time;
+    }
+    if (res.time > max_time) {
+      max_time = res.time;
+    }
+  });
+  results.forEach(function(res){
+
+    var location = new google.maps.LatLng(res.latitude, res.longitude);
+    /*var marker = new google.maps.Marker({
+position: location,
+map: map
+});
+
+markers.push(marker);*/
+    var pcColor = (res.time - min_time) / (max_time - min_time);
+    var color = "RGB(" + parseInt(158 * pcColor + 255 * (1 - pcColor)) + ", " + parseInt(0 * pcColor + 139 * (1 - pcColor)) + ", " + parseInt(0 * pcColor + 124 * (1 - pcColor)) + ")";
+    var circle = new google.maps.Circle({
+      strokeColor: color,
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: color,
+      fillOpacity: 0.05,
+      map: map,
+      zIndex: 1,
+      center: {lat: res.latitude, lng: res.longitude},
+      radius: res.distance * 1000
+    });
+    markers.push(circle);
+
+    var auto_load = $('#auto-load').is(':checked');
+    if (auto_load) {
+      loadProperties({latitude: circle.getCenter().lat(), longitude: circle.getCenter().lng(), radius: circle.getRadius() / 1000}, map);
+    } else {
+      circle.addListener('click', function (event) {
+	loadProperties({latitude: circle.getCenter().lat(), longitude: circle.getCenter().lng(), radius: circle.getRadius() / 1000}, map);
+      });
+    }
+  });
 }
