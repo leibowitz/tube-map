@@ -6,6 +6,7 @@ var zones = [];
 var tubeDisplayed = false;
 var lineDisplayed = false;
 var zoneDisplayed = false;
+var circles = [];
 
 $(function () {
     var map;
@@ -47,7 +48,8 @@ infowindow.open(map, marker);
 
 	var results = localStorage.getItem("circles");
 	if (results != undefined) {
-	    showCircles(JSON.parse(results), map);
+	    circles = JSON.parse(results);
+	    showCircles(circles, map);
 	}
 
 	var input = document.getElementById('pac-input');
@@ -112,7 +114,8 @@ position: place.geometry.location
 		    longitude: place.geometry.location.lng(),
 		    max_time: max_time * 60
 		}, function(results) {
-		  localStorage.setItem("circles", JSON.stringify(results));
+		  circles = results;
+		  localStorage.setItem("circles", JSON.stringify(circles));
 		  showCircles(results, map);
 		}, "json");
 
@@ -425,6 +428,9 @@ markers.push(marker);*/
       radius: res.distance * 1000
     });
     circle.set('id', res.id);
+    if (res.visible != undefined && res.visible == false) {
+        circle.setVisible(false);
+    }
     markers.push(circle);
     var infowindow = new google.maps.InfoWindow({
       content: '<div class="info-window">'+
@@ -460,6 +466,12 @@ function hideCircle(event, nodeid) {
 	    circle.setVisible(false);
 	}
     });
+    circles.forEach(function(circle){
+	if (circle.id == nodeid) {
+	    circle.visible = false;
+	}
+    });
+    localStorage.setItem("circles", JSON.stringify(circles));
     infowindows.forEach(function(infowindow){
 	if (infowindow.get('id') == nodeid) {
 	    infowindow.close();
