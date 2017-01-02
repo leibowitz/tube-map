@@ -51,7 +51,8 @@ infowindow.open(map, marker);
 
 	var searchData = getSearchData();
 	if (searchData.points) {
-	  showCircles(searchData.points, map);
+	  points = searchData.points;
+	  showCircles(points, map);
 	  if (searchData.time) {
 	      $('#max-time').val(searchData.time);
 	  }
