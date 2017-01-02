@@ -77,14 +77,7 @@ infowindow.open(map, marker);
 			return;
 	    }
 
-	    // Clear out the old markers.
-	    while(marker = markers.pop()) {
-		marker.setMap(null);
-	    }
-	    
-	    while(marker = circles.pop()) {
-		marker.setMap(null);
-	    }
+	    clearAllMarkers();
 
 	    // For each place, get the icon, name and location.
 	    var bounds = new google.maps.LatLngBounds();
@@ -530,4 +523,15 @@ function getSearchData() {
       return {};
     }
     return JSON.parse(sData);
+}
+
+function clearAllMarkers() {
+    // Clear out the old markers.
+    while(marker = markers.pop()) {
+	marker.setMap(null);
+    }
+
+    while(marker = circles.pop()) {
+	marker.setMap(null);
+    }
 }
