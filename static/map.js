@@ -151,6 +151,25 @@ position: place.geometry.location
 		loc = $(this).find('[name=location]');
 
     });
+
+	$('#start-request').on('click', function(event){
+	    var searchData = getSearchData();
+	    if (searchData.latitude && searchData.longitude) {
+		clearAllMarkers();
+		var time = $('#max-time').val();
+		$.get( "request", {
+		    latitude: searchData.latitude,
+		    longitude: searchData.longitude,
+		    max_time: time * 60
+		}, function(results) {
+		  searchData.points = results;
+		  searchData.time = time;
+		  points = results;
+		  localStorage.setItem("search-data", JSON.stringify(searchData));
+		  showCircles(points, map);
+		}, "json");
+	    }
+	});
 	$('#load-all').on('click', function(event){
 	    circles.forEach(function(circle){
 		loadProperties({latitude: circle.getCenter().lat(), longitude: circle.getCenter().lng(), radius: circle.getRadius() / 1000}, map);
