@@ -285,6 +285,8 @@ function loadProperties(data, map) {
 	      anchor: new google.maps.Point(12, 40)
 	    });
 
+	    marker.set('id', res.id);
+
 	    var floor_plans = '';
 	    if (res.floor_plans != undefined) {
 			res.floor_plans.forEach(function(floor_plan){
@@ -322,6 +324,7 @@ function loadProperties(data, map) {
 	        contentString += res.description;
 	    }
 	    contentString += '</div>';
+	    contentString += '<button onclick="hideProperty(event, '+"'"+res.id+"'"+')">Delete</button><br />';
 
 	    var infowindow = new google.maps.InfoWindow({
 		content: contentString,
@@ -329,6 +332,9 @@ function loadProperties(data, map) {
 		pixelOffset: new google.maps.Size(-40,0),
 		maxWidth: 400
 	    });
+
+	    infowindow.set('id', 'property-' + res.id);
+	    infowindows.push(infowindow);
 
 	    marker.addListener('click', function () {
 		infowindow.open(map, marker);
@@ -493,6 +499,20 @@ function hideCircle(event, nodeid) {
     localStorage.setItem("search-data", JSON.stringify(searchData));
     infowindows.forEach(function(infowindow){
 	if (infowindow.get('id') == nodeid) {
+	    infowindow.close();
+	}
+    });
+}
+
+function hideProperty(event, nodeid) {
+    event.stopPropagation();
+    markers.forEach(function(marker){
+	if (marker.get('id') == nodeid) {
+	    marker.setVisible(false);
+	}
+    });
+    infowindows.forEach(function(infowindow){
+	if (infowindow.get('id') == 'property-'+nodeid) {
 	    infowindow.close();
 	}
     });
