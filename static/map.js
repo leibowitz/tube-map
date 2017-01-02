@@ -46,15 +46,20 @@ maxWidth: 400
 marker.addListener('click', function () {
 infowindow.open(map, marker);
 });*/
-
-	var results = localStorage.getItem("circles");
-	if (results != undefined) {
-	    points = JSON.parse(results);
-	    showCircles(points, map);
-	}
-
 	var input = document.getElementById('pac-input');
 	var searchBox = new google.maps.places.SearchBox(input);
+
+	var searchData = getSearchData();
+	if (searchData.points) {
+	  showCircles(searchData.points, map);
+	  if (searchData.time) {
+	      $('#max-time').val(searchData.time);
+	  }
+	  if (searchData.address) {
+	      input.value = searchData.address;
+	  }
+	}
+
     //map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
 	// Bias the SearchBox results towards current map's viewport.
@@ -119,7 +124,7 @@ position: place.geometry.location
 		    max_time: max_time * 60
 		}, function(results) {
 		  points = results;
-		  localStorage.setItem("circles", JSON.stringify(points));
+		  localStorage.setItem("search-data", JSON.stringify({"points": points, "address": place.formatted_address, "latitude": place.geometry.location.lat(), "longitude": place.geometry.location.lng(), "time": max_time}));
 		  showCircles(points, map);
 		}, "json");
 
@@ -480,7 +485,9 @@ function hideCircle(event, nodeid) {
 	    circle.visible = false;
 	}
     });
-    localStorage.setItem("circles", JSON.stringify(points));
+    var searchData = getSearchData();
+    searchData.points = points;
+    localStorage.setItem("search-data", JSON.stringify(searchData));
     infowindows.forEach(function(infowindow){
 	if (infowindow.get('id') == nodeid) {
 	    infowindow.close();
@@ -494,3 +501,10 @@ function showAllCircles() {
     });
 }
 
+function getSearchData() {
+    var sData = localStorage.getItem("search-data");
+    if (sData == undefined) {
+      return {};
+    }
+    return JSON.parse(sData);
+}
