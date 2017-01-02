@@ -6,6 +6,7 @@ var zones = [];
 var tubeDisplayed = false;
 var lineDisplayed = false;
 var zoneDisplayed = false;
+var points = [];
 var circles = [];
 
 $(function () {
@@ -48,8 +49,8 @@ infowindow.open(map, marker);
 
 	var results = localStorage.getItem("circles");
 	if (results != undefined) {
-	    circles = JSON.parse(results);
-	    showCircles(circles, map);
+	    points = JSON.parse(results);
+	    showCircles(points, map);
 	}
 
 	var input = document.getElementById('pac-input');
@@ -72,6 +73,10 @@ infowindow.open(map, marker);
 
 	    // Clear out the old markers.
 	    while(marker = markers.pop()) {
+		marker.setMap(null);
+	    }
+	    
+	    while(marker = circles.pop()) {
 		marker.setMap(null);
 	    }
 
@@ -113,9 +118,9 @@ position: place.geometry.location
 		    longitude: place.geometry.location.lng(),
 		    max_time: max_time * 60
 		}, function(results) {
-		  circles = results;
-		  localStorage.setItem("circles", JSON.stringify(circles));
-		  showCircles(results, map);
+		  points = results;
+		  localStorage.setItem("circles", JSON.stringify(points));
+		  showCircles(points, map);
 		}, "json");
 
 		var previousZoom = map.getZoom();
@@ -430,7 +435,7 @@ markers.push(marker);*/
     if (res.visible != undefined && res.visible == false) {
         circle.setVisible(false);
     }
-    markers.push(circle);
+    circles.push(circle);
     var infowindow = new google.maps.InfoWindow({
       content: '<div class="info-window">'+
 	'Tube: '+res.name+'<br />'+
@@ -460,17 +465,17 @@ markers.push(marker);*/
 
 function hideCircle(event, nodeid) {
     event.stopPropagation();
-    markers.forEach(function(circle){
+    circles.forEach(function(circle){
 	if (circle.get('id') == nodeid) {
 	    circle.setVisible(false);
 	}
     });
-    circles.forEach(function(circle){
+    points.forEach(function(circle){
 	if (circle.id == nodeid) {
 	    circle.visible = false;
 	}
     });
-    localStorage.setItem("circles", JSON.stringify(circles));
+    localStorage.setItem("circles", JSON.stringify(points));
     infowindows.forEach(function(infowindow){
 	if (infowindow.get('id') == nodeid) {
 	    infowindow.close();
@@ -479,7 +484,7 @@ function hideCircle(event, nodeid) {
 }
 
 function showAllCircles() {
-    markers.forEach(function(circle){
+    circles.forEach(function(circle){
 	circle.setVisible(true);
     });
 }
