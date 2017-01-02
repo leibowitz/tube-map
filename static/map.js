@@ -176,7 +176,7 @@ position: place.geometry.location
 	    });
 	});
 	$('#show-circles').on('click', function(event){
-	    showAllCircles()
+	    showAllCircles(map)
 	});
 	$('#toggle-tube').on('click', function(event){
 	  if (tubes.length == 0) {
@@ -544,8 +544,9 @@ function hideProperty(event, nodeid) {
     });
 }
 
-function showAllCircles() {
+function showAllCircles(map) {
     circles.forEach(function(circle){
+	circle.setMap(map);
 	circle.setVisible(true);
     });
 }
