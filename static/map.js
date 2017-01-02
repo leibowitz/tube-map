@@ -480,7 +480,7 @@ markers.push(marker);*/
     });
     infowindow.set('id', res.id);
     infowindows.push(infowindow);
-    circle.addListener('rightclick', function (event) {
+    circle.addListener('click', function (event) {
 	infowindow.open(circle.get('map'), circle);
     });
 
@@ -488,7 +488,7 @@ markers.push(marker);*/
     if (auto_load) {
       loadProperties({latitude: circle.getCenter().lat(), longitude: circle.getCenter().lng(), radius: circle.getRadius() / 1000}, map);
     } else {
-      circle.addListener('click', function (event) {
+      circle.addListener('rightclick', function (event) {
 	loadProperties({latitude: circle.getCenter().lat(), longitude: circle.getCenter().lng(), radius: circle.getRadius() / 1000}, map);
       });
     }
