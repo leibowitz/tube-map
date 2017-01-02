@@ -325,6 +325,8 @@ function loadProperties(data, map) {
 
 	    var infowindow = new google.maps.InfoWindow({
 		content: contentString,
+		position: location,
+		pixelOffset: new google.maps.Size(-40,0),
 		maxWidth: 400
 	    });
 
