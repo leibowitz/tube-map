@@ -35,7 +35,7 @@ def list_properties_nestoria(latitude, longitude, radius, min_bedrooms, min_bath
 
     r = requests.get('http://api.nestoria.co.uk/api', params=payload, proxies=proxies)
     for listing in r.json()["response"]["listings"]:
-        yield {"latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing['price']), "url": listing['lister_url'], "description": listing['summary'], "address": listing['title'], "image": listing['thumb_url'], "floor_plans": [], "new_home": False}
+        yield {"id": str(id(listing)), "latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing['price']), "url": listing['lister_url'], "description": listing['summary'], "address": listing['title'], "image": listing['thumb_url'], "floor_plans": [], "new_home": False}
 
 def list_properties_smartnewhomes(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price=0, max_price=0):
     (lat_min, lon_min, lat_max, lon_max) = boundingBox(latitude, longitude, radius)
@@ -80,7 +80,7 @@ def list_properties_smartnewhomes(latitude, longitude, radius, min_bedrooms, min
             new_home = True if "new_home" in listing and listing["new_home"] == "true" else False
             u = urllib.parse.urlparse(listing["details_url"])
             details_url = u._replace(query=None).geturl()
-            yield {"latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing["price"]), "id": listing["listing_id"], "url": details_url, "description": listing["short_description"], "address": listing["displayable_address"], "image": listing["thumbnail_url"], "floor_plans": listing["floor_plan"] if 'floor_plan' in listing else [], "new_home": new_home}
+            yield {"latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing["price"]), "id": str(listing["listing_id"]), "url": details_url, "description": listing["short_description"], "address": listing["displayable_address"], "image": listing["thumbnail_url"], "floor_plans": listing["floor_plan"] if 'floor_plan' in listing else [], "new_home": new_home}
 
 def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price=0, max_price=0):
     headers = {'x-client-id': trovit_client_id}
@@ -112,7 +112,7 @@ def list_properties_trovit(latitude, longitude, radius, min_bedrooms, min_bathro
     for listing in r.json()["ads"]:
         new_home = True if 'is_new' in listing and listing['is_new'] and listing['is_new'] == 1 else False
         photo = listing['photos']["medium"]["url"] if 'photos' in listing else None
-        yield {"latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing['price']), "id": listing['id'], "url": listing['url'], "description": listing['description'], "address": listing['title'], "image": photo, "floor_plans": listing['floor_plan'] if 'floor_plan' in listing and listing['floor_plan'] else [], "new_home": new_home}
+        yield {"latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing['price']), "id": str(listing['id']), "url": listing['url'], "description": listing['description'], "address": listing['title'], "image": photo, "floor_plans": listing['floor_plan'] if 'floor_plan' in listing and listing['floor_plan'] else [], "new_home": new_home}
 
 def list_properties_zoopla(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price=0, max_price=0):
 
@@ -154,7 +154,7 @@ def list_properties_zoopla(latitude, longitude, radius, min_bedrooms, min_bathro
         u = urllib.parse.urlparse(listing.details_url)
         #u.query = None
         details_url = u._replace(query=None).geturl()
-        yield {"latitude": listing.latitude, "longitude": listing.longitude, "price": int(listing.price), "id": listing.listing_id, "url": details_url, "description": listing.short_description, "address": listing.displayable_address, "image": listing.thumbnail_url, "floor_plans": listing.floor_plan if listing.floor_plan else [], "new_home": new_home}
+        yield {"latitude": listing.latitude, "longitude": listing.longitude, "price": int(listing.price), "id": str(listing.listing_id), "url": details_url, "description": listing.short_description, "address": listing.displayable_address, "image": listing.thumbnail_url, "floor_plans": listing.floor_plan if listing.floor_plan else [], "new_home": new_home}
 
 def list_properties_rightmove(latitude, longitude, radius, min_bedrooms, min_bathrooms, min_price=0, max_price=0):
 
@@ -178,7 +178,7 @@ def list_properties_rightmove(latitude, longitude, radius, min_bedrooms, min_bat
 
     r = requests.get('http://api.rightmove.co.uk/api/sale/find', params=payload, proxies=proxies)
     for listing in r.json()["properties"]:
-        yield {"id": listing["identifier"], "latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing['price']), "url": "http://www.rightmove.co.uk/property-for-sale/property-%d.html" % (listing['identifier']), "description": listing['summary'], "address": listing['address'], "image": listing['photoThumbnailUrl'], "floor_plans": [], "new_home": new_home}
+        yield {"id": str(listing["identifier"]), "latitude": listing['latitude'], "longitude": listing['longitude'], "price": int(listing['price']), "url": "http://www.rightmove.co.uk/property-for-sale/property-%d.html" % (listing['identifier']), "description": listing['summary'], "address": listing['address'], "image": listing['photoThumbnailUrl'], "floor_plans": [], "new_home": new_home}
 
 class PropertiesHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
