@@ -152,6 +152,11 @@ position: place.geometry.location
 		loc = $(this).find('[name=location]');
 
     });
+	$('#load-all').on('click', function(event){
+	    circles.forEach(function(circle){
+		loadProperties({latitude: circle.getCenter().lat(), longitude: circle.getCenter().lng(), radius: circle.getRadius() / 1000}, map);
+	    });
+	});
 	$('#show-circles').on('click', function(event){
 	    showAllCircles()
 	});
