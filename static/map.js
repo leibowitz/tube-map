@@ -118,8 +118,8 @@ position: place.geometry.location
 		    max_time: max_time * 60
 		}, function(results) {
 		  points = results;
-		  localStorage.setItem("search-data", JSON.stringify({"points": points, "address": place.formatted_address, "latitude": place.geometry.location.lat(), "longitude": place.geometry.location.lng(), "time": max_time}));
 		  showCircles(points, map);
+		  localStorage.setItem("search-data", JSON.stringify({"points": points, "address": place.formatted_address, "latitude": place.geometry.location.lat(), "longitude": place.geometry.location.lng(), "time": max_time}));
 		}, "json");
 
 		var previousZoom = map.getZoom();
@@ -451,7 +451,19 @@ map: map
 markers.push(marker);*/
     var pcColor = (res.time - min_time) / (max_time - min_time);
     var color = "RGB(" + parseInt(158 * pcColor + 255 * (1 - pcColor)) + ", " + parseInt(0 * pcColor + 139 * (1 - pcColor)) + ", " + parseInt(0 * pcColor + 124 * (1 - pcColor)) + ")";
-    var circle = new google.maps.Circle({
+    var circle;
+    circles.forEach(function(c){
+	if (c.get('id') == res.id) {
+	    circle = c;
+	    c.setMap(map);
+	    c.setRadius(res.distance * 1000);
+	    res.visible = c.getVisible();
+	}
+    });
+    if (circle != undefined) {
+       return;
+    }
+    circle = new google.maps.Circle({
       strokeColor: color,
       strokeOpacity: 0.8,
       strokeWeight: 2,
@@ -565,7 +577,7 @@ function clearAllMarkers() {
 	marker.setMap(null);
     }
 
-    while(marker = circles.pop()) {
-	marker.setMap(null);
-    }
+    circles.forEach(function(circle){
+	circle.setMap(null);
+    });
 }
