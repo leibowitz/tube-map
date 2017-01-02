@@ -8,9 +8,9 @@ var lineDisplayed = false;
 var zoneDisplayed = false;
 var points = [];
 var circles = [];
+var map;
 
 $(function () {
-    var map;
 
     function initMap(location) {
 
@@ -472,6 +472,7 @@ markers.push(marker);*/
 	'Tube: '+res.name+'<br />'+
 	'Time: '+moment.duration(res.time, 'seconds').humanize()+'<br />'+
 	'Radius: '+parseInt(res.distance*1000).toString()+'m<br />'+
+	'<button onclick="loadCircleProperties(event, '+circle.get('id')+')">Load Properties</button><br />'+
 	'<button onclick="hideCircle(event, '+circle.get('id')+')">Delete</button><br />'+
 	'</div>',
 	position: location,
@@ -494,6 +495,19 @@ markers.push(marker);*/
   });
 }
 
+function loadCircleProperties(event, nodeid) {
+    event.stopPropagation();
+    circles.forEach(function(circle){
+	if (circle.get('id') == nodeid) {
+	    loadProperties({latitude: circle.getCenter().lat(), longitude: circle.getCenter().lng(), radius: circle.getRadius() / 1000}, map);
+	}
+    });
+    infowindows.forEach(function(infowindow){
+	if (infowindow.get('id') == nodeid) {
+	    infowindow.close();
+	}
+    });
+}
 function hideCircle(event, nodeid) {
     event.stopPropagation();
     circles.forEach(function(circle){
