@@ -7,7 +7,7 @@ from py2neo import Graph
 graph = Graph("http://neo4j:passwd@localhost:7474/db/data/")
 
 class LinesHandler(tornado.web.RequestHandler):
-    lines_colors = {'Central': '#FF0000', 'Bakerloo': '#b26300', 'Piccadilly': '#0019a8', 'Circle': '#ffd329', 'District': '#007d32', 'Overground': '#ef7b10', 'Hammersmith & City': '#f4a9be', 'Jubilee': '#a1a5a7', 'Metropolitan': '#9b0058', 'Northern': '#000000', 'Central': '#dc241f', 'Victoria': '#0098d8', 'Waterloo & City': '#93ceba', 'DLR': '#00AFAD', 'Emirates Air Line': '#dc241f'}
+    lines_colors = {'Central': '#FF0000', 'Bakerloo': '#b26300', 'Piccadilly': '#0019a8', 'Circle': '#ffd329', 'District': '#007d32', 'Overground': '#ef7b10', 'Hammersmith & City': '#f4a9be', 'Jubilee': '#a1a5a7', 'Metropolitan': '#9b0058', 'Northern': '#000000', 'Central': '#dc241f', 'Victoria': '#0098d8', 'Waterloo & City': '#93ceba', 'DLR': '#00AFAD', 'Emirates Air Line': '#dc241f', 'Tram': '#00BD19'}
     @tornado.web.asynchronous
     @gen.engine
     def get(self):
