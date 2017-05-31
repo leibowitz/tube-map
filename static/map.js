@@ -496,6 +496,10 @@ markers.push(marker);*/
     infowindow.set('id', res.id);
     infowindows.push(infowindow);
     circle.addListener('click', function (event) {
+	if ((event.ua || event.pa).altKey) {
+	    hideCircleId(circle.get('id'));
+	    return;
+	}
 	infowindow.open(circle.get('map'), circle);
     });
 
@@ -525,6 +529,10 @@ function loadCircleProperties(event, nodeid) {
 }
 function hideCircle(event, nodeid) {
     event.stopPropagation();
+    hideCircleId(nodeid);
+}
+
+function hideCircleId(nodeid) {
     circles.forEach(function(circle){
 	if (circle.get('id') == nodeid) {
 	    circle.setVisible(false);
