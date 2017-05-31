@@ -3,6 +3,7 @@
     "features": [
         {
             "type": "Feature",
+            "id": "zone1",
             "geometry": {
                 "type": "Polygon",
                 "coordinates": [
@@ -67,6 +68,7 @@
         },
         {
             "type": "Feature",
+            "id": "zone3",
             "geometry": {
                 "type": "GeometryCollection",
                 "geometries": [
@@ -347,6 +349,7 @@
         },
         {
             "type": "Feature",
+            "id": "zone4",
             "geometry": {
                 "type": "GeometryCollection",
                 "geometries": [
@@ -614,6 +617,7 @@
         },
         {
             "type": "Feature",
+            "id": "zone6",
             "geometry": {
                 "type": "GeometryCollection",
                 "geometries": [
@@ -824,6 +828,7 @@
         },
         {
             "type": "Feature",
+            "id": "zone7",
             "geometry": {
                 "type": "Polygon",
                 "coordinates": [
@@ -888,6 +893,7 @@
         },
         {
             "type": "Feature",
+            "id": "zone8",
             "geometry": {
                 "type": "Polygon",
                 "coordinates": [
@@ -957,6 +963,7 @@
         },
         {
             "type": "Feature",
+            "id": "zone9",
             "geometry": {
                 "type": "Polygon",
                 "coordinates": [
@@ -1011,6 +1018,7 @@
         },
         {
             "type": "Feature",
+            "id": "zone5",
             "geometry": {
                 "type": "GeometryCollection",
                 "geometries": [
@@ -1211,6 +1219,7 @@
         },
         {
             "type": "Feature",
+            "id": "zone2",
             "geometry": {
                 "type": "GeometryCollection",
                 "geometries": [
