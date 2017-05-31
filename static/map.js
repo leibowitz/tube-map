@@ -256,7 +256,7 @@ function loadTubes(map) {
 	}, "json");
 }
 
-function loadProperties(data, map) {
+function loadProperties(data, map, circle) {
 
 	var source = $('#source').val();
 
@@ -275,6 +275,9 @@ function loadProperties(data, map) {
 		max_price: max_price,
 		radius: data.radius
     }, function(results) {
+  if (circle != undefined) {
+    console.log(results.length, 'properties loaded');
+  }
 	results.forEach(function(res){
 	    var location = new google.maps.LatLng(res.latitude, res.longitude);
 	    var marker = new google.maps.Marker({
@@ -501,8 +504,8 @@ markers.push(marker);*/
       loadProperties({latitude: circle.getCenter().lat(), longitude: circle.getCenter().lng(), radius: circle.getRadius() / 1000}, map);
     } else {
       circle.addListener('rightclick', function (event) {
-	loadProperties({latitude: circle.getCenter().lat(), longitude: circle.getCenter().lng(), radius: circle.getRadius() / 1000}, map);
-      });
+	loadProperties({latitude: circle.getCenter().lat(), longitude: circle.getCenter().lng(), radius: circle.getRadius() / 1000}, map, circle);
+	});
     }
   });
 }
